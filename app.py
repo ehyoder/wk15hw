@@ -29,11 +29,11 @@ db = SQLAlchemy(app)
 class BB(db.Model):
     __tablename__ = 'bb_data'
 
-    id = db.Column(db.Integer, primary_key=True)
-    emoji_char = db.Column(db.String)
-    emoji_id = db.Column(db.String)
-    name = db.Column(db.String)
-    score = db.Column(db.Integer)
+    sample_id = db.Column(db.Integer, primary_key=True)
+    event = db.Column(db.String)
+    ethnicity = db.Column(db.String)
+    gender = db.Column(db.String)
+    age = db.Column(db.Integer)
 
     def __repr__(self):
         return '?'
