@@ -9,7 +9,12 @@ from flask import (
     request,
     redirect)
 
+import sqlalchemy
 from flask_sqlalchemy import SQLAlchemy
+
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import Session
+from sqlalchemy import create_engine, func
 
 #################################################
 # Flask Setup
@@ -21,30 +26,23 @@ app = Flask(__name__)
 #################################################
 
 # The database URI
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///db/--.sqlite"
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///db/belly_button_biodiversity.sqlite"
 
 db = SQLAlchemy(app)
+Base = automap_base()
 
+# Connect to Engine
+engine = create_engine("sqlite:///db/belly_button_biodiversity.sqlite",echo=False)
+conn = engine.connect()
+# Reflect the tables 
+Base.prepare(engine, reflect=True)
 
-class BB(db.Model):
-    __tablename__ = 'bb_data'
+# Create variables for tables
+Otu = Base.classes.otu
+Samples = Base.classes.samples
+Samples_metadata = Base.classes.samples_metadata
 
-    sample_id = db.Column(db.Integer, primary_key=True)
-    event = db.Column(db.String)
-    ethnicity = db.Column(db.String)
-    gender = db.Column(db.String)
-    age = db.Column(db.Integer)
-
-    def __repr__(self):
-        return '?'
-
-
-# Create database tables
-@app.before_first_request
-def setup():
-    # Recreate database each time for demo
-    # db.drop_all()
-    db.create_all()
+session = Session(engine)
 
 #################################################
 # Flask Routes
@@ -52,82 +50,77 @@ def setup():
 
 
 @app.route("/")
-def home():
+def index():
     """Return to the dashboard homepage."""
     return render_template("index.html")
 
 @app.route("/names")
 def sample_names():
     """Return a list of sample names"""
-
+    
     # query for sample names
+    results = db.session.query(Base).all()
+    return jsonify(results)
 
     # Generate the plot trace
-    plot_trace = {
-        "x": --,
-        "y": --,
-        "type": "--"
-    }
-    return jsonify(plot_trace)
+    # plot_trace = {
+    #    "x": --,
+    #     "y": --,
+    #     "type": "--"
+    # }
+    # return jsonify(plot_trace)
 
-
-@app.route("/otu")
-def otu_data():
-    """Return list of OTU descriptions"""
-
-    # query for the otu data
-
-    # Format the data for Plotly
-    plot_trace = {
-            "x": df["--"].values.tolist(),
-            "y": df["--"].values.tolist(),
-            "type": "--"
-    }
-    return jsonify(plot_trace)
-
+#@app.route("/otu")
+#def otu_data():
+#     plot_trace = {
+#             "x": df["--"].values.tolist(),
+#             "y": df["--"].values.tolist(),
+#             "type": "--"
+#     }
+#     return jsonify(plot_trace)
 
 @app.route("/metadata/<sample>")
 def sample_metadata():
     """Return a json dictionary of sample metadata"""
 
     # query for json sample metadata
-    
+    return jsonify(hello='world')
 
     # Format the data for Plotly
-    plot_trace = {
-            "x": df["--"].values.tolist(),
-            "y": df["--"].values.tolist(),
-            "type": "--"
-    }
-    return jsonify(plot_trace)
+#     plot_trace = {
+#             "x": df["--"].values.tolist(),
+#             "y": df["--"].values.tolist(),
+#             "type": "--"
+#     }
+#     return jsonify(plot_trace)
 
-@app.route("/wfreq/<sample>")
-def sample_washing freqeunce():
+#@app.route("/wfreq/<sample>")
+#def sample_washing freqeunce():
     """Return washing frequency as a number"""
 
-    # query for washing frequency
+#     # query for washing frequency
 
-    # Format the data for Plotly
-    plot_trace = {
-            "x": df["--"].values.tolist(),
-            "y": df["--"].values.tolist(),
-            "type": "--"
-    }
-    return jsonify(plot_trace)
+#     # Format the data for Plotly
+#     plot_trace = {
+#             "x": df["--"].values.tolist(),
+#             "y": df["--"].values.tolist(),
+#             "type": "--"
+#     }
+#     return jsonify(plot_trace)
 
-@app.route("/samples/<sample>")
-def sample_values():
+#@app.route("/samples/<sample>")
+#def sample_values():
     """Returns a list of dictionaries containing sorted lists for 'otu_ids' and 'sample_values'"""
 
-    # query for list of dictionaries
+#     # query for list of dictionaries
 
-    # Format the data for Plotly
-    plot_trace = {
-            "x": df["--"].values.tolist(),
-            "y": df["--"].values.tolist(),
-            "type": "--"
-    }
-    return jsonify(plot_trace)
+#     # Format the data for Plotly
+#     plot_trace = {
+#             "x": df["--"].values.tolist(),
+#             "y": df["--"].values.tolist(),
+#             "type": "--"
+#     }
+#     return jsonify(plot_trace)
 
 if __name__ == '__main__':
     app.run(debug=True)
