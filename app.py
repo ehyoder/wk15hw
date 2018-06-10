@@ -59,46 +59,62 @@ def sample_names():
     """Return a list of sample names"""
     
     # query for sample names
-    results = db.session.query(Base).all()
-    return jsonify(results)
+@app.route('/names')
+def names():
+    """Return a list of sample names"""
 
-    # Generate the plot trace
-    # plot_trace = {
-    #    "x": --,
-    #     "y": --,
-    #     "type": "--"
-    # }
-    # return jsonify(plot_trace)
+    # query with pandas
+    names_results = session.query(Samples).statement
+    names_results_df = pd.read_sql_query(names_results, session.bind)
+    names_results_df.set_index('otu_id', inplace=True)
 
-#@app.route("/otu")
-#def otu_data():
-#     plot_trace = {
-#             "x": df["--"].values.tolist(),
-#             "y": df["--"].values.tolist(),
-#             "type": "--"
-#     }
-#     return jsonify(plot_trace)
+    # return a list of the sample names 
+    return jsonify(list(names_results_df.columns))
+
+@app.route("/otu")
+def otu_data():
+    results = session.query(Otu.lowest_taxonomic_unit_found).all()
+
+    # use numpy ravel to get a 1D array
+    otu_list = list(np.ravel(results))
+    return jsonify(otu_list)
 
 @app.route("/metadata/<sample>")
-def sample_metadata():
+
+def sample_metadata(sample):
     """Return a json dictionary of sample metadata"""
+    sample_list = [Samples_metadata.SAMPLEID, Samples_metadata.ETHNICITY,
+           Samples_metadata.GENDER, Samples_metadata.AGE,
+           Samples_metadata.LOCATION, Samples_metadata.BBTYPE]
 
-    # query for json sample metadata
-    return jsonify(hello='world')
+    # query for all sample list items
+    results = session.query(*sample_list).all()
 
-    # Format the data for Plotly
-#     plot_trace = {
-#             "x": df["--"].values.tolist(),
-#             "y": df["--"].values.tolist(),
-#             "type": "--"
-#     }
-#     return jsonify(plot_trace)
+    # create a dictionary of metadata information
+    sample_metadata = {}
+    for result in results:
+        sample_metadata['SAMPLEID'] = result[0]
+        sample_metadata['ETHNICITY'] = result[1]
+        sample_metadata['GENDER'] = result[2]
+        sample_metadata['AGE'] = result[3]
+        sample_metadata['LOCATION'] = result[4]
+        sample_metadata['BBTYPE'] = result[5]
 
-#@app.route("/wfreq/<sample>")
-#def sample_washing freqeunce():
-    """Return washing frequency as a number"""
+    return jsonify(sample_metadata)
 
-#     # query for washing frequency
+@app.route("/wfreq/<sample>")
+def sample_washing_frequency(sample):
+    """Return the Weekly Washing Frequency as a number."""
+
+    # query for washing frequency
+    results = session.query(Samples_metadata.WFREQ).\
+        filter(Samples_metadata.SAMPLEID == sample[3:]).all()
+    # get results as a 1D array
+    wfreq = np.ravel(results)
+
+    # return the number of washes
+    return jsonify(int(wfreq))
+
 
 #     # Format the data for Plotly
 #     plot_trace = {
@@ -110,7 +126,7 @@ def sample_metadata():
 
 #@app.route("/samples/<sample>")
 #def sample_values():
-    """Returns a list of dictionaries containing sorted lists for 'otu_ids' and 'sample_values'"""
+    #"""Returns a list of dictionaries containing sorted lists for 'otu_ids' and 'sample_values'"""
 
 #     # query for list of dictionaries
 

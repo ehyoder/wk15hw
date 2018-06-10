@@ -1,47 +1,14 @@
-<script>
-	TESTER = document.getElementById('tester');
-	Plotly.plot( TESTER, [{
-	x: [1, 2, 3, 4, 5],
-	y: [1, 2, 4, 8, 16] }], {
-	margin: { t: 0 } } );
-</script>
-
-function init() {
-  var data = [{
-    values: [19, 26, 55, 88],
-    labels: ["Spotify", "Soundcloud", "Pandora", "Itunes"],
-    type: "pie"
-  }];
-
-  var layout = {
-    height: 600,
-    width: 800
-  };
-
-  Plotly.plot("pie", data, layout);
-}
-
-function updatePlotly(newdata) {
-  var PIE = document.getElementById("pie");
-  Plotly.restyle(PIE, "values", [newdata]);
-}
-
-function getData(dataset) {
-  var data = [];
-  switch (dataset) {
-  case "dataset1":
-    data = [1, 2, 3, 39];
-    break;
-  case "dataset2":
-    data = [10, 20, 30, 37];
-    break;
-  case "dataset3":
-    data = [100, 200, 300, 23];
-    break;
-  default:
-    data = [30, 30, 30, 11];
-  }
-  updatePlotly(data);
-}
-
+var pieData = [{
+  values: sampleData[0]['sample_values'].slice(0, 10),
+  labels: sampleData[0]['otu_ids'].slice(0, 10),
+  hovertext: labels.slice(0, 10),
+  hoverinfo: 'hovertext',
+  type: 'pie'
+}];
+var pieLayout = {
+  margin: { t: 0, l: 0 }
+};
+var PIE = document.getElementById('pie');
+Plotly.plot(PIE, pieData, pieLayout);
+};
 init();
